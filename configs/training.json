@@ -10,5 +10,8 @@
   "random_seed": 42,
   "logistic_max_iter": 500,
   "random_forest_trees": 140,
-  "random_forest_max_depth": 14
+  "random_forest_max_depth": 14,
+  "catboost_iterations": 400,
+  "catboost_depth": 8,
+  "catboost_learning_rate": 0.06
 }

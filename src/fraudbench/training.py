@@ -8,16 +8,24 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
+from catboost import CatBoostClassifier
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import ConfusionMatrixDisplay, PrecisionRecallDisplay
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 
 from .config import PROJECT_ROOT, load_config
-from .data import CATEGORICAL_COLUMNS, MODEL_COLUMNS, NUMERIC_COLUMNS, load_splits, profile
+from .data import (
+    CATEGORICAL_COLUMNS,
+    MODEL_COLUMNS,
+    NUMERIC_COLUMNS,
+    load_splits,
+    prepare_catboost_frame,
+    profile,
+)
 from .metrics import best_f1_threshold, binary_metrics
 
 
@@ -69,6 +77,26 @@ def candidate_models(config: dict) -> dict[str, Pipeline]:
                 ),
             ]
         ),
+        "catboost": Pipeline(
+            [
+                ("prepare", FunctionTransformer(prepare_catboost_frame, validate=False)),
+                (
+                    "classifier",
+                    CatBoostClassifier(
+                        iterations=int(config["catboost_iterations"]),
+                        depth=int(config["catboost_depth"]),
+                        learning_rate=float(config["catboost_learning_rate"]),
+                        loss_function="Logloss",
+                        eval_metric="PRAUC",
+                        auto_class_weights="Balanced",
+                        random_seed=seed,
+                        thread_count=4,
+                        allow_writing_files=False,
+                        verbose=False,
+                    ),
+                ),
+            ]
+        ),
     }
 
 
@@ -101,7 +129,9 @@ def save_plots(comparison, validation, validation_scores, test, test_score, thre
     output = PROJECT_ROOT / "outputs"
     output.mkdir(exist_ok=True)
     figure, axis = plt.subplots(figsize=(7, 4))
-    axis.bar(comparison["model"], comparison["pr_auc"], color=["#2563eb", "#0f766e"])
+    axis.bar(
+        comparison["model"], comparison["pr_auc"], color=["#2563eb", "#0f766e", "#7c3aed"]
+    )
     axis.set_ylabel("Validation PR-AUC")
     axis.set_title(f"{title}: model comparison")
     figure.tight_layout()
@@ -147,7 +177,10 @@ def train(config_path: str | Path) -> dict:
     validation_x, validation_y = splits["validation"]
     fitted, validation_scores, thresholds, rows = {}, {}, {}, []
     for name, model in candidate_models(config).items():
-        model.fit(train_x, train_y)
+        fit_params = (
+            {"classifier__cat_features": CATEGORICAL_COLUMNS} if name == "catboost" else {}
+        )
+        model.fit(train_x, train_y, **fit_params)
         score = model.predict_proba(validation_x)[:, 1]
         threshold = best_f1_threshold(validation_y.to_numpy(), score)
         metrics = binary_metrics(validation_y, score, threshold)
@@ -161,9 +194,13 @@ def train(config_path: str | Path) -> dict:
     test_metrics = binary_metrics(test_y, test_score, threshold)
 
     production = candidate_models(config)[winner]
+    production_fit_params = (
+        {"classifier__cat_features": CATEGORICAL_COLUMNS} if winner == "catboost" else {}
+    )
     production.fit(
         pd.concat([train_x, validation_x], ignore_index=True),
         pd.concat([train_y, validation_y], ignore_index=True),
+        **production_fit_params,
     )
     bundle = {
         "model": production,

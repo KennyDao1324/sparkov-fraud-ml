@@ -26,6 +26,13 @@ READ_COLUMNS = [
 ]
 
 
+def prepare_catboost_frame(frame: pd.DataFrame) -> pd.DataFrame:
+    prepared = frame[MODEL_COLUMNS].copy()
+    for column in CATEGORICAL_COLUMNS:
+        prepared[column] = prepared[column].astype("string").fillna("__MISSING__").astype(str)
+    return prepared
+
+
 def load_file(path: str | Path) -> pd.DataFrame:
     dataset_path = Path(path)
     if not dataset_path.exists():

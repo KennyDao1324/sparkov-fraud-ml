@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Leakage-aware Sparkov synthetic card-fraud benchmark"
 requires-python = ">=3.11"
 dependencies = [
+  "catboost>=1.2.10,<2",
   "fastapi>=0.115,<1",
   "joblib>=1.4,<2",
   "matplotlib>=3.9,<4",

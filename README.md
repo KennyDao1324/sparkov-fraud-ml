@@ -1,6 +1,9 @@
 # Sparkov Synthetic Credit-Card Fraud ML
 
-Standalone PyCharm project for the Sparkov synthetic transaction dataset. It compares class-weighted logistic regression and random forest models, selects by validation PR-AUC, and evaluates once on the later official test period.
+Standalone PyCharm project for the Sparkov synthetic transaction dataset. It compares class-weighted
+logistic regression, random forest, and CatBoost, selects by validation PR-AUC, and evaluates once on the
+later official test period. CatBoost keeps the dataset's categorical fields native instead of one-hot
+expanding them.
 
 ## Dataset
 
@@ -67,7 +70,9 @@ Brandon Harris, *Sparkov Data Generation*, and Kartik Shenoy, *Credit Card Trans
 
 ## Current trained result
 
-Random forest was selected. On the later 50,000-row test sample it achieved PR-AUC **0.8369**, ROC-AUC **0.9923**, precision **0.8563**, recall **0.7409**, and F1 **0.7944**. See [`outputs/metrics.json`](outputs/metrics.json) and [`outputs/model_comparison.csv`](outputs/model_comparison.csv).
+CatBoost was selected with validation PR-AUC **0.9130**. On the later 50,000-row test sample it achieved
+PR-AUC **0.8643**, ROC-AUC **0.9908**, precision **0.7843**, recall **0.8290**, and F1 **0.8060**. See
+[`outputs/metrics.json`](outputs/metrics.json) and [`outputs/model_comparison.csv`](outputs/model_comparison.csv).
 
 ![Sparkov model comparison](outputs/model_comparison.png)
 
