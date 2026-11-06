@@ -1,0 +1,84 @@
+{
+  "config": {
+    "dataset_name": "Sparkov synthetic credit-card transactions",
+    "dataset_kind": "synthetic",
+    "train_path": "data/raw/fraudTrain.csv",
+    "test_path": "data/raw/fraudTest.csv",
+    "max_train_rows": 200000,
+    "max_validation_rows": 50000,
+    "max_test_rows": 50000,
+    "validation_fraction": 0.2,
+    "random_seed": 42,
+    "logistic_max_iter": 500,
+    "random_forest_trees": 140,
+    "random_forest_max_depth": 14
+  },
+  "profile": {
+    "rows": 1852394,
+    "columns": 12,
+    "fraud_rows": 9651,
+    "fraud_rate": 0.005210014716091717,
+    "missing_values": {
+      "trans_date_trans_time": 0,
+      "category": 0,
+      "amt": 0,
+      "gender": 0,
+      "lat": 0,
+      "long": 0,
+      "city_pop": 0,
+      "dob": 0,
+      "unix_time": 0,
+      "merch_lat": 0,
+      "merch_long": 0,
+      "is_fraud": 0
+    },
+    "time_min": "2019-01-01 00:00:18",
+    "time_max": "2020-12-31 23:59:34",
+    "split_rows": {
+      "train": 200000,
+      "validation": 50000,
+      "test": 50000
+    },
+    "source_hashes": {
+      "train_path": "fd7139200dbfcbed0b6742bbe05a4f1abce532c4fef20918228a651647a3e75d",
+      "test_path": "12d553ab19440c752d2531ee1af44bb64f12cc3d3839f1649f19e81c230545f0"
+    }
+  },
+  "selected_model": "random_forest",
+  "selection_metric": "validation_pr_auc",
+  "validation": {
+    "model": "random_forest",
+    "threshold": 0.7041339902,
+    "accuracy": 0.99794,
+    "precision": 0.8943089431,
+    "recall": 0.7407407407,
+    "f1": 0.8103130755,
+    "roc_auc": 0.9907314092,
+    "pr_auc": 0.8734799013,
+    "false_positive_rate": 0.0005231073,
+    "true_negative": 49677,
+    "false_positive": 26,
+    "false_negative": 77,
+    "true_positive": 220
+  },
+  "test": {
+    "threshold": 0.7041339902118102,
+    "accuracy": 0.99852,
+    "precision": 0.8562874251497006,
+    "recall": 0.7409326424870466,
+    "f1": 0.7944444444444444,
+    "roc_auc": 0.9922501893578644,
+    "pr_auc": 0.8369413232698245,
+    "false_positive_rate": 0.00048185997952095085,
+    "true_negative": 49783,
+    "false_positive": 24,
+    "false_negative": 50,
+    "true_positive": 143
+  },
+  "split_rows": {
+    "train": 200000,
+    "validation": 50000,
+    "test": 50000
+  },
+  "leakage_note": "The held-out test period was not used for selection or threshold tuning."
+}
